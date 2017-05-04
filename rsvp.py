@@ -1,14 +1,15 @@
 import gspread
 import config
 from oauth2client.service_account import ServiceAccountCredentials
+from urlparse import parse_qs
 
 def handler(event, context):
   try:
-    add_rsvp(event)
-    return True
+    event = parse_qs(event['body'])
+    return add_rsvp(event)
 
   except Exception as err:
-    return "ERROR: " + str(err)
+    return event
 
 def add_rsvp(rsvp):
   # authorize
@@ -17,7 +18,7 @@ def add_rsvp(rsvp):
   gc = gspread.authorize(c)
 
   # get sheet
-  wks = gc.open(rsvp['title']).worksheet(rsvp['sheet'])
+  wks = gc.open(rsvp['title'][0]).worksheet(rsvp['sheet'][0])
 
   # Get all values from first column, and find first blank row
   col_1 = wks.col_values(1)
@@ -30,4 +31,7 @@ def add_rsvp(rsvp):
 
   # Add to google sheet
   for i in range(len(names)):
-    wks.update_cell(first_blank, i+1, rsvp[names[i]])
+    wks.update_cell(first_blank, i+1, rsvp[names[i]][0])
+
+  rsvp['ADDED'] = True
+  return rsvp
