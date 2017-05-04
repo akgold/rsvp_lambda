@@ -25,8 +25,9 @@ def add_rsvp(rsvp):
 
   # Get col names
   names = wks.row_values(1)
+  # Remove blanks
+  names = [x for x in names if x]
 
-  print(rsvp)
   # Add to google sheet
-  for i in range(len(rsvp)):
+  for i in range(len(names)):
     wks.update_cell(first_blank, i+1, rsvp[names[i]])
